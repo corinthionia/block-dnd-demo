@@ -19,6 +19,8 @@ const Dnd = () => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setTodos(items);
+
+    console.log(items);
   };
 
   return (

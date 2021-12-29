@@ -109,6 +109,7 @@ const EditPage = () => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setBlocks(items);
+    console.log(items);
   };
 
   return (
@@ -165,13 +166,14 @@ const EditPage = () => {
 };
 
 const DragBtn = styled.div`
-  width: 10px;
-  height: 45px;
+  height: 100%;
+  margin-left: 10px; ;
 `;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
 `;
 
 export default EditPage;
