@@ -3,6 +3,10 @@ import EditableBlock from './EditableBlock';
 import uid from './utils/uid';
 import fetchedData from './data.json';
 
+import styled from 'styled-components';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { AiOutlineHolder } from 'react-icons/ai';
+
 const EditPage = () => {
   // const initialBlock = { id: uid(), html: '', tag: 'p', flag: 'false' };
   const [blocks, setBlocks] = useState(fetchedData);
@@ -97,39 +101,77 @@ const EditPage = () => {
     setBlocks(updatedBlocks);
   };
 
+  const handleDndChange = (result) => {
+    if (!result.destination) return;
+
+    const items = [...blocks];
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setBlocks(items);
+  };
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '450px',
-        minHeight: '580px',
-        margin: '24px',
-        paddingTop: '24px',
-        border: '1px solid black',
-        borderRadius: '2px',
-        backgroundColor: '#ffffff',
-      }}
-    >
-      {blocks.map((block) => {
-        return (
-          // EditableBlock argument로 받을 수 있는게 string이고,
-          // boolean을 받는 속성이 따로 있음.
-          // flag를 boolean type으로 굳이 할 수는 있는데 에러 나옴.
-          <EditableBlock
-            key={block.id}
-            id={block.id}
-            tag={block.tag}
-            html={block.html}
-            flag={block.flag}
-            updatePage={updatePageHandler}
-            addBlock={addBlockHandler}
-            deleteBlock={deleteBlockHandler}
-            updateBlock={updateBlockHandler}
-          />
-        );
-      })}
-    </div>
+    <DragDropContext onDragEnd={handleDndChange}>
+      <Droppable droppableId="todosDroppable">
+        {(provided) => (
+          <div
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '450px',
+              minHeight: '580px',
+              margin: '24px',
+              paddingTop: '24px',
+              border: '1px solid black',
+              borderRadius: '2px',
+              backgroundColor: '#ffffff',
+            }}
+          >
+            {blocks.map(({ id, tag, html, flag }, index) => (
+              <Draggable key={id} draggableId={id} index={index}>
+                {(provided) => (
+                  <Wrapper
+                    ref={provided.innerRef}
+                    {...provided.dragHandleProps}
+                    {...provided.draggableProps}
+                    key={id}
+                  >
+                    <DragBtn>
+                      <AiOutlineHolder />
+                    </DragBtn>
+                    <EditableBlock
+                      id={id}
+                      tag={tag}
+                      html={html}
+                      flag={flag}
+                      updatePage={updatePageHandler}
+                      addBlock={addBlockHandler}
+                      deleteBlock={deleteBlockHandler}
+                      updateBlock={updateBlockHandler}
+                    />
+                  </Wrapper>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 };
+
+const DragBtn = styled.div`
+  width: 10px;
+  height: 45px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
 export default EditPage;
