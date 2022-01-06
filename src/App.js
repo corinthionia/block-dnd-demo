@@ -1,14 +1,7 @@
-import EditablePage from './EditablePage';
-import GlobalStyle from './GlobalStyle';
 import styled from 'styled-components';
 
 const App = () => {
-  return (
-    <Wrapper>
-      {/* <GlobalStyle />
-      <EditablePage /> */}
-    </Wrapper>
-  );
+  return <Wrapper></Wrapper>;
 };
 
 const Wrapper = styled.div`
