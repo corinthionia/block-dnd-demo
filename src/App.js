@@ -12,9 +12,11 @@ const App = () => {
 };
 
 const Wrapper = styled.div`
-  width: 1920px;
-  height: 1080px;
+  width: 1910px;
+  height: 1070px;
   background: powderblue;
+
+  border: 5px solid pink;
 `;
 
 export default App;
