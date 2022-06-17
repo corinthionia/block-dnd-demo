@@ -24,6 +24,7 @@ const Workspace = ({ data, setData }) => {
         (block) => block.blockId === parseInt(e.target.id)
       );
 
+      // 일단 임시로 lodash 사용... 나중에 uninstall 할 예정...
       const newData = _.cloneDeep(data);
 
       await newData.blocks.splice(idx + 1, 0, {
@@ -33,8 +34,8 @@ const Workspace = ({ data, setData }) => {
       });
 
       setData(newData);
-      console.log('블럭 추가!');
       setIsNewBlockAdded(true);
+      console.log('블럭 추가!');
     }
   };
 
@@ -52,7 +53,6 @@ const Workspace = ({ data, setData }) => {
       selection.removeAllRanges();
       selection.addRange(range);
 
-      setPrevKey('');
       setIsNewBlockAdded(false);
     }
   }, [isNewBlockAdded]);
@@ -87,6 +87,7 @@ const Workspace = ({ data, setData }) => {
             </BlockWrapper>
           );
         })}
+        <FloatingBtn>블럭 만들기</FloatingBtn>
       </Editor>
     </Wrapper>
   );
@@ -116,6 +117,7 @@ const BlockWrapper = styled.div`
 
   display: flex;
   align-items: center;
+  background: none;
 `;
 
 const Block = styled.div`
@@ -131,12 +133,40 @@ const Block = styled.div`
   font-size: 14px;
   line-height: 150%;
   letter-spacing: -0.005em;
+
+  ::selection {
+    background: #cbe5f3;
+  }
 `;
 
 const DragIcon = styled.img`
-  height: 16px;
+  width: 8px;
+  height: 15px;
   cursor: pointer;
   margin-right: 4px;
+  padding: 5px;
+  background: none;
+  border-radius: 2px;
+  &:hover {
+    background: #e9ecef;
+    padding: 5px;
+  }
+`;
+
+const FloatingBtn = styled.div`
+  width: 75px;
+  height: 28px;
+  border-radius: 4px;
+  background: #f5f8ff;
+  box-shadow: 0px 0px 10px #5c7cfa;
+
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default Workspace;
