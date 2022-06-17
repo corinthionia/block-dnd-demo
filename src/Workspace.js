@@ -11,7 +11,7 @@ const Workspace = ({ data, setData }) => {
   const refX = useRef();
   const refY = useRef();
 
-  const addNewBlock = async ({ textValue }) => {
+  const addNewBlock = ({ textValue }) => {
     const idx = data.blocks.findIndex(
       (block) => block.blockId === parseInt(ref.current)
     );
@@ -19,7 +19,7 @@ const Workspace = ({ data, setData }) => {
     // 일단 임시로 lodash 사용... 나중에 uninstall 할 예정...
     const newData = _.cloneDeep(data);
 
-    await newData.blocks.splice(idx + 1, 0, {
+    newData.blocks.splice(idx + 1, 0, {
       blockId: Date.now(),
       text: textValue,
       isBlocked: false,
@@ -28,7 +28,7 @@ const Workspace = ({ data, setData }) => {
     setData(newData);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = async (e) => {
     setPrevKey(e.key);
 
     if (
@@ -40,22 +40,7 @@ const Workspace = ({ data, setData }) => {
       e.preventDefault();
       ref.current = e.target.id;
 
-      // const idx = data.blocks.findIndex(
-      //   (block) => block.blockId === parseInt(e.target.id)
-      // );
-
-      // // 일단 임시로 lodash 사용... 나중에 uninstall 할 예정...
-      // const newData = _.cloneDeep(data);
-
-      // await newData.blocks.splice(idx + 1, 0, {
-      //   blockId: Date.now(),
-      //   text: '',
-      //   isBlocked: false,
-      // });
-
-      // setData(newData);
-
-      addNewBlock('');
+      await addNewBlock('');
       setIsNewBlockAdded(true);
       console.log('블럭 추가!');
     }
