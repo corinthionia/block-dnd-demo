@@ -1,52 +1,89 @@
-import { useState } from 'react';
+import _ from 'lodash';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import drag from './drag.png';
 
 const Workspace = ({ data, setData }) => {
   const [prevKey, setPrevKey] = useState('');
+  console.log('컴포넌트 렌더링');
+  const ref = useRef();
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = async (e) => {
+    console.log('keydown 함수 렌더링');
     setPrevKey(e.key);
 
-    if ((prevKey === 'Shift') & (e.key === 'Enter')) {
-      const newData = {
-        ...data,
-        blocks: [
-          ...data.blocks,
-          { blockId: Date.now(), text: '제발 ㅠㅠ', isBlocked: true },
-        ],
-      };
+    if (
+      (prevKey !== 'Shift') &
+      (e.key === 'Enter') &
+      (e.nativeEvent.isComposing === false)
+    ) {
+      // prevent creating new lines
+      e.preventDefault();
+      console.log('if문 안 렌더링');
+      ref.current = e.target.id;
 
-      setData(newData);
+      const idx = data.blocks.findIndex(
+        (block) => block.blockId === parseInt(e.target.id)
+      );
+
+      const newT = _.cloneDeep(data);
+
+      await newT.blocks.splice(idx + 1, 0, {
+        blockId: Date.now(),
+        text: '',
+        isBlocked: false,
+      });
+
+      setData(newT);
+      console.log('블럭 추가!');
+
+      const el = document.getElementById(ref.current);
+      const range = document.createRange();
+      const selection = window.getSelection();
+
+      range.setStart(el?.nextElementSibling.childNodes[1], 0);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      setPrevKey('');
     }
   };
 
-  console.log('렌더링!');
+  const getBlockText = (e) => {
+    // get block values with html tags
+    // console.log(e.target.innerHTML);
+  };
 
   return (
     <Wrapper>
-      <Editor>
-        {data.blocks.map(({ blockId, text, isBlocked }) => {
+      <Editor onKeyDown={handleKeyDown}>
+        <BlockWrapper draggable={true}>
+          <DragIcon src={drag} alt="" draggable={false} />
+          <Block
+            className="blocks"
+            id={Date.now()}
+            onClick={getBlockText}
+            contentEditable={true}
+            suppressContentEditableWarning={true}
+          />
+        </BlockWrapper>
+
+        {data.blocks.map(({ blockId, text }) => {
           return (
-            isBlocked && (
-              <BlockWrapper key={blockId} draggable={true}>
-                <DragIcon src={drag} alt="" draggable={false} />
-                <Block
-                  onKeyDown={handleKeyDown}
-                  className="blocks"
-                  draggable={false}
-                  contentEditable={true}
-                  suppressContentEditableWarning={true}
-                  dangerouslySetInnerHTML={{ __html: text }}
-                />
-              </BlockWrapper>
-            )
+            <BlockWrapper key={blockId} draggable={true} id={blockId}>
+              <DragIcon src={drag} alt="" />
+              <Block
+                className="blocks"
+                id={blockId}
+                onClick={getBlockText}
+                draggable={false}
+                contentEditable={true}
+                suppressContentEditableWarning={true}
+                dangerouslySetInnerHTML={{ __html: text }}
+              />
+            </BlockWrapper>
           );
         })}
-        <BlockWrapper>
-          <DragIcon src={drag} alt="" draggable={false} />
-          <Block contentEditable={true} suppressContentEditableWarning={true} />
-        </BlockWrapper>
       </Editor>
     </Wrapper>
   );
@@ -75,21 +112,28 @@ const BlockWrapper = styled.div`
   width: 100%;
 
   display: flex;
+  align-items: center;
 `;
 
 const Block = styled.div`
-  padding: 2px;
+  padding: 4px;
   min-height: 20px;
-  background: pink;
+  background: rgba(82, 116, 239, 0.15);
   margin-top: 2px;
-  border: 1px solid black;
+  border: 1px solid #5274ef;
+  border-radius: 2px;
   width: 100%;
   outline: none;
+
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: -0.005em;
 `;
 
 const DragIcon = styled.img`
-  height: 20px;
+  height: 16px;
   cursor: pointer;
+  margin-right: 4px;
 `;
 
 export default Workspace;

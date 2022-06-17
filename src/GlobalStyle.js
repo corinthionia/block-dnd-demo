@@ -12,6 +12,8 @@ body {
 
 }
 
+
+
 `;
 
 export default GlobalStyle;
