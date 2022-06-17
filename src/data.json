@@ -4,13 +4,13 @@
   "blocks": [
     {
       "blockId": 165530517300,
-      "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.<br><br><br><br>끝에 공백 하나 있음 ",
+      "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.\n\n\n\n끝에 공백 하나 있음 ",
       "isBlocked": true
     },
     {
       "blockId": 165530517301,
-      "text": "<br>",
-      "isBlocked": false
+      "text": "\n",
+      "isBlocked": true
     },
 
     {
@@ -22,6 +22,11 @@
       "blockId": 165530517306,
       "text": "테스트 테스트",
       "isBlocked": true
+    },
+    {
+      "blockId": 165530517307,
+      "text": "",
+      "isBlocked": false
     }
   ]
 }

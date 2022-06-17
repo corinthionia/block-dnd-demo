@@ -1,14 +1,34 @@
 import _ from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { css } from 'styled-components';
 import drag from './drag.png';
 
 const Workspace = ({ data, setData }) => {
   const [prevKey, setPrevKey] = useState('');
   const [isNewBlockAdded, setIsNewBlockAdded] = useState(false);
   const ref = useRef();
+  const refX = useRef();
+  const refY = useRef();
 
-  const handleKeyDown = async (e) => {
+  const addNewBlock = async ({ textValue }) => {
+    const idx = data.blocks.findIndex(
+      (block) => block.blockId === parseInt(ref.current)
+    );
+
+    // 일단 임시로 lodash 사용... 나중에 uninstall 할 예정...
+    const newData = _.cloneDeep(data);
+
+    await newData.blocks.splice(idx + 1, 0, {
+      blockId: Date.now(),
+      text: textValue,
+      isBlocked: false,
+    });
+
+    setData(newData);
+  };
+
+  const handleKeyDown = (e) => {
     setPrevKey(e.key);
 
     if (
@@ -20,28 +40,41 @@ const Workspace = ({ data, setData }) => {
       e.preventDefault();
       ref.current = e.target.id;
 
-      const idx = data.blocks.findIndex(
-        (block) => block.blockId === parseInt(e.target.id)
-      );
+      // const idx = data.blocks.findIndex(
+      //   (block) => block.blockId === parseInt(e.target.id)
+      // );
 
-      // 일단 임시로 lodash 사용... 나중에 uninstall 할 예정...
-      const newData = _.cloneDeep(data);
+      // // 일단 임시로 lodash 사용... 나중에 uninstall 할 예정...
+      // const newData = _.cloneDeep(data);
 
-      await newData.blocks.splice(idx + 1, 0, {
-        blockId: Date.now(),
-        text: '',
-        isBlocked: false,
-      });
+      // await newData.blocks.splice(idx + 1, 0, {
+      //   blockId: Date.now(),
+      //   text: '',
+      //   isBlocked: false,
+      // });
 
-      setData(newData);
+      // setData(newData);
+
+      addNewBlock('');
       setIsNewBlockAdded(true);
       console.log('블럭 추가!');
     }
   };
 
-  const getBlockText = (e) => {
+  const handleDragText = (e) => {
     // get block values with html tags
-    // console.log(e.target.innerHTML);
+    const sel = document.getSelection();
+
+    // get dragged text element
+    console.log(e.target.innerHTML.slice(sel.anchorOffset, sel.focusOffset));
+
+    console.log(e.pageX, e.pageY);
+    refX.current = e.pageX;
+    refY.current = e.pageY;
+  };
+
+  const handleFloatingBtnClick = (e) => {
+    console.log(e);
   };
 
   useEffect(() => {
@@ -60,34 +93,24 @@ const Workspace = ({ data, setData }) => {
   return (
     <Wrapper>
       <Editor onKeyDown={handleKeyDown}>
-        <BlockWrapper draggable={true}>
-          <DragIcon src={drag} alt="" draggable={false} />
-          <Block
-            className="blocks"
-            id={Date.now()}
-            onClick={getBlockText}
-            contentEditable={true}
-            suppressContentEditableWarning={true}
-          />
-        </BlockWrapper>
-
-        {data.blocks.map(({ blockId, text }) => {
+        {data.blocks.map(({ blockId, text, isBlocked }) => {
           return (
             <BlockWrapper key={blockId} draggable={true} id={blockId}>
               <DragIcon src={drag} alt="" />
               <Block
-                className="blocks"
                 id={blockId}
-                onClick={getBlockText}
+                onClick={handleDragText}
+                isBlocked={isBlocked}
                 draggable={false}
                 contentEditable={true}
                 suppressContentEditableWarning={true}
-                dangerouslySetInnerHTML={{ __html: text }}
-              />
+              >
+                {text}
+              </Block>
             </BlockWrapper>
           );
         })}
-        <FloatingBtn>블럭 만들기</FloatingBtn>
+        <FloatingBtn onClick={handleFloatingBtnClick}>블록 만들기</FloatingBtn>
       </Editor>
     </Wrapper>
   );
@@ -123,9 +146,7 @@ const BlockWrapper = styled.div`
 const Block = styled.div`
   padding: 4px;
   min-height: 20px;
-  background: rgba(82, 116, 239, 0.15);
   margin-top: 2px;
-  border: 1px solid #5274ef;
   border-radius: 2px;
   width: 100%;
   outline: none;
@@ -133,6 +154,15 @@ const Block = styled.div`
   font-size: 14px;
   line-height: 150%;
   letter-spacing: -0.005em;
+
+  white-space: pre-wrap;
+
+  ${({ isBlocked }) =>
+    isBlocked &&
+    css`
+      background: rgba(82, 116, 239, 0.15);
+      border: 1px solid #5274ef;
+    `}
 
   ::selection {
     background: #cbe5f3;
@@ -142,7 +172,7 @@ const Block = styled.div`
 const DragIcon = styled.img`
   width: 8px;
   height: 15px;
-  cursor: pointer;
+  cursor: grab;
   margin-right: 4px;
   padding: 5px;
   background: none;
@@ -167,6 +197,22 @@ const FloatingBtn = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  cursor: pointer;
+  /* z-index: 2; */
+  /* 
+  position: absolute;
+  // left: -40px top: +20px 적당 (창 크기 따라 달라짐 ㅠㅠ)
+  left: 208px;
+  top: 199px; */
+
+  /* 
+  ${({ refX, refY }) =>
+    refX & refY &&
+    css`
+      left: ${refX};
+      top: ${refY};
+    `} */
 `;
 
 export default Workspace;
