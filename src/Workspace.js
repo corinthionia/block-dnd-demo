@@ -5,11 +5,10 @@ import drag from './drag.png';
 
 const Workspace = ({ data, setData }) => {
   const [prevKey, setPrevKey] = useState('');
-  console.log('컴포넌트 렌더링');
+  const [isNewBlockAdded, setIsNewBlockAdded] = useState(false);
   const ref = useRef();
 
   const handleKeyDown = async (e) => {
-    console.log('keydown 함수 렌더링');
     setPrevKey(e.key);
 
     if (
@@ -19,33 +18,23 @@ const Workspace = ({ data, setData }) => {
     ) {
       // prevent creating new lines
       e.preventDefault();
-      console.log('if문 안 렌더링');
       ref.current = e.target.id;
 
       const idx = data.blocks.findIndex(
         (block) => block.blockId === parseInt(e.target.id)
       );
 
-      const newT = _.cloneDeep(data);
+      const newData = _.cloneDeep(data);
 
-      await newT.blocks.splice(idx + 1, 0, {
+      await newData.blocks.splice(idx + 1, 0, {
         blockId: Date.now(),
         text: '',
         isBlocked: false,
       });
 
-      setData(newT);
+      setData(newData);
       console.log('블럭 추가!');
-
-      const el = document.getElementById(ref.current);
-      const range = document.createRange();
-      const selection = window.getSelection();
-
-      range.setStart(el?.nextElementSibling.childNodes[1], 0);
-      selection.removeAllRanges();
-      selection.addRange(range);
-
-      setPrevKey('');
+      setIsNewBlockAdded(true);
     }
   };
 
@@ -53,6 +42,20 @@ const Workspace = ({ data, setData }) => {
     // get block values with html tags
     // console.log(e.target.innerHTML);
   };
+
+  useEffect(() => {
+    if (isNewBlockAdded) {
+      const el = document.getElementById(ref.current);
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.setStart(el?.nextElementSibling.childNodes[1], 0);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      setPrevKey('');
+      setIsNewBlockAdded(false);
+    }
+  }, [isNewBlockAdded]);
 
   return (
     <Wrapper>
